@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CBTI: Chess Behavioral Type Indicator</title>
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v3.2.1/dist/web/static/pretendard.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         :root {
             --bg-dark: #05070a;
@@ -20,7 +19,8 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Pretendard', -apple-system, sans-serif; }
 
         body {
-            background: radial-gradient(circle at 20% 80%, #061a14 0%, var(--bg-light) 50%, var(--bg-dark) 100%);
+            /* 3D 오브젝트가 빠진 대신 배경 그라데이션을 중앙 중심으로 배치하여 몰입감을 높였습니다 */
+            background: radial-gradient(circle at 50% 50%, #08241d 0%, var(--bg-light) 60%, var(--bg-dark) 100%);
             color: var(--text-main);
             overflow: hidden; 
             height: 100vh;
@@ -28,8 +28,6 @@
             justify-content: center;
             align-items: center;
         }
-
-        #canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
 
         .glass-panel {
             background: var(--glass-bg);
@@ -98,8 +96,6 @@
 </head>
 <body>
 
-    <div id="canvas-container"></div>
-
     <div class="glass-panel" id="main-panel">
         <div id="page1" class="page active">
             <h1 class="main-title">CBTI</h1>
@@ -123,97 +119,7 @@
 
     <script>
         /* ==========================================
-           1. Three.js: 레퍼런스를 참고한 폰 디자인 수정 & 그리드 듬성듬성 처리
-        ========================================== */
-        const container = document.getElementById('canvas-container');
-        const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x05070a, 0.04);
-
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.z = 8; 
-
-        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        container.appendChild(renderer.domElement);
-
-        const points = [];
-        
-        // 하단부터 목까지: 레퍼런스 이미지 비율을 참고하여 좌표 재설정
-        points.push(new THREE.Vector2(0, -3));
-        points.push(new THREE.Vector2(1.8, -3));     // 맨 밑단 (너비 축소)
-        points.push(new THREE.Vector2(1.75, -2.8));  // 밑단 모서리
-        points.push(new THREE.Vector2(1.6, -2.5));
-        points.push(new THREE.Vector2(1.4, -2.2));   // 1단 단차 (너비 축소)
-        points.push(new THREE.Vector2(1.3, -2.0));
-        points.push(new THREE.Vector2(1.0, -1.5));   // 허리로 올라가는 곡선
-        points.push(new THREE.Vector2(0.6, -1.0));   // 허리 (두께 축소)
-        points.push(new THREE.Vector2(0.5, 1.0));    // 기둥
-        points.push(new THREE.Vector2(0.8, 1.1));    // 목 장식 시작
-        points.push(new THREE.Vector2(0.9, 1.3));    // 목 장식 꼭대기
-        points.push(new THREE.Vector2(0.8, 1.5));    // 목 장식 끝
-        points.push(new THREE.Vector2(0.4, 1.8));    // 머리 받침 목 (두께 축소)
-
-        // 머리 구체: 이전보다 크기를 다시 키움 (0.85 -> 1.35), 레퍼런스 비율 반영
-        const headRadius = 1.35; 
-        const headCenterY = 1.8 + headRadius - 0.05; 
-        // 목 부분(x=0.4)과 부드럽게 이어지도록 각도 계산
-        const startAngle = Math.PI - Math.asin(0.4 / headRadius); 
-        
-        for (let i = 0; i <= 20; i++) {
-            const t = i / 20;
-            const angle = startAngle * (1 - t);
-            points.push(new THREE.Vector2(headRadius * Math.sin(angle), headCenterY + headRadius * Math.cos(angle)));
-        }
-        points.push(new THREE.Vector2(0, headCenterY + headRadius));
-
-        // 메쉬 퀄리티 낮춤 (분할 수 64 -> 32로 감소) : 그리드를 듬성듬성하게 표현
-        const geometry = new THREE.LatheGeometry(points, 32);
-        const material = new THREE.MeshBasicMaterial({ 
-            color: 0x00FFAA, 
-            wireframe: true,
-            transparent: true,
-            opacity: 0.25
-        });
-
-        const pawn = new THREE.Mesh(geometry, material);
-        // 기울기 완만하게 유지 (22.5도)
-        pawn.rotation.z = Math.PI / 8; 
-
-        const pivot = new THREE.Group();
-        pivot.add(pawn);
-        scene.add(pivot); 
-
-        function updatePawnPosition() {
-            if (window.innerWidth < 768) {
-                pivot.position.x = 0;
-                pivot.position.y = 1.5; 
-                pivot.scale.set(0.5, 0.5, 0.5); 
-            } else {
-                pivot.position.x = -4.5; 
-                pivot.position.y = -1;
-                // 디자인 비율 수정에 맞춰 전체 오브젝트 스케일 미세 조정 (0.7 유지)
-                pivot.scale.set(0.7, 0.7, 0.7); 
-            }
-        }
-        updatePawnPosition();
-
-        function animate() {
-            requestAnimationFrame(animate);
-            // 수평 회전(요잉) 유지
-            pivot.rotation.y += 0.004;
-            renderer.render(scene, camera);
-        }
-        animate();
-
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            updatePawnPosition();
-        });
-
-        /* ==========================================
-           2. API 로직 (유지)
+           API 로직 (수집, 파싱, 에러 처리)
         ========================================== */
         async function fetchGames() {
             const usernameInput = document.getElementById('username').value.trim();
