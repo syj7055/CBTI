@@ -7,7 +7,6 @@
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v3.2.1/dist/web/static/pretendard.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        /* CSS는 이전과 동일하여 생략 없이 전체 유지합니다 */
         :root {
             --bg-dark: #05070a;
             --bg-light: #0b0f19;
@@ -124,7 +123,7 @@
 
     <script>
         /* ==========================================
-           1. Three.js: Pivot(그룹)을 이용한 순수 요잉(Yaw) 구현
+           1. Three.js: 디테일 업그레이드 & 사이즈/기울기 조절
         ========================================== */
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
@@ -138,28 +137,37 @@
         container.appendChild(renderer.domElement);
 
         const points = [];
+        
+        // 하단부터 목까지: 굴곡의 디테일을 훨씬 섬세하게 쪼갬
         points.push(new THREE.Vector2(0, -3));
-        points.push(new THREE.Vector2(2.5, -3)); 
+        points.push(new THREE.Vector2(2.5, -3));     // 맨 밑단
+        points.push(new THREE.Vector2(2.4, -2.8));   // 밑단 모서리 라운딩 처리
         points.push(new THREE.Vector2(2.2, -2.5));
+        points.push(new THREE.Vector2(1.9, -2.2));   // 1단 단차 디테일
         points.push(new THREE.Vector2(1.8, -2.0));
+        points.push(new THREE.Vector2(1.4, -1.5));   // 허리로 올라가는 곡선 디테일
         points.push(new THREE.Vector2(1.0, -1.0));
-        points.push(new THREE.Vector2(0.8, 1.0));  
-        points.push(new THREE.Vector2(1.2, 1.2));  
-        points.push(new THREE.Vector2(1.2, 1.5));
-        points.push(new THREE.Vector2(0.6, 1.8));
+        points.push(new THREE.Vector2(0.8, 1.0));    // 긴 기둥
+        points.push(new THREE.Vector2(1.3, 1.1));    // 목 장식 시작
+        points.push(new THREE.Vector2(1.4, 1.3));    // 목 장식 꼭대기
+        points.push(new THREE.Vector2(1.3, 1.5));    // 목 장식 끝
+        points.push(new THREE.Vector2(0.6, 1.8));    // 머리 받침 목
 
-        const headRadius = 1.1; 
-        const headCenterY = 1.8 + headRadius - 0.1; 
+        // 머리 구체: 이전보다 크기를 확실히 줄임 (1.1 -> 0.85)
+        const headRadius = 0.85; 
+        const headCenterY = 1.8 + headRadius - 0.05; 
         const startAngle = Math.PI - Math.asin(0.6 / headRadius); 
         
-        for (let i = 0; i <= 20; i++) {
-            const t = i / 20;
+        // 머리 구체의 곡선을 훨씬 부드럽게 만들기 위해 30개의 점으로 분할
+        for (let i = 0; i <= 30; i++) {
+            const t = i / 30;
             const angle = startAngle * (1 - t);
             points.push(new THREE.Vector2(headRadius * Math.sin(angle), headCenterY + headRadius * Math.cos(angle)));
         }
         points.push(new THREE.Vector2(0, headCenterY + headRadius));
 
-        const geometry = new THREE.LatheGeometry(points, 36);
+        // 메쉬 퀄리티 대폭 향상 (분할 수 36 -> 64로 증가)
+        const geometry = new THREE.LatheGeometry(points, 64);
         const material = new THREE.MeshBasicMaterial({ 
             color: 0x00FFAA, 
             wireframe: true,
@@ -167,32 +175,30 @@
             opacity: 0.25
         });
 
-        // 1. 메쉬 생성 및 기울기 적용
         const pawn = new THREE.Mesh(geometry, material);
-        pawn.rotation.z = Math.PI / 4; // 폰을 45도 기울임 (고정)
+        // 기울기를 45도(Math.PI/4)에서 22.5도(Math.PI/8)로 줄여 꼿꼿한 느낌을 줌
+        pawn.rotation.z = Math.PI / 8; 
 
-        // 2. 피벗(그룹) 생성 후 폰을 넣음
         const pivot = new THREE.Group();
         pivot.add(pawn);
-        scene.add(pivot); // 씬에는 피벗을 추가
+        scene.add(pivot); 
 
-        // 해상도 조정 시 '피벗'의 위치를 옮김
         function updatePawnPosition() {
             if (window.innerWidth < 768) {
                 pivot.position.x = 0;
-                pivot.position.y = 2; 
-                pivot.scale.set(0.8, 0.8, 0.8);
+                pivot.position.y = 1.5; 
+                pivot.scale.set(0.5, 0.5, 0.5); // 모바일에서도 크기 축소
             } else {
                 pivot.position.x = -4.5; 
                 pivot.position.y = -1;
-                pivot.scale.set(1.1, 1.1, 1.1);
+                // 기존 1.1에서 0.7로 전체적인 오브젝트 크기 축소
+                pivot.scale.set(0.7, 0.7, 0.7); 
             }
         }
         updatePawnPosition();
 
         function animate() {
             requestAnimationFrame(animate);
-            // 3. 애니메이션 루프에서는 '피벗'의 Y축만 회전시킴 (순수한 요잉)
             pivot.rotation.y += 0.004;
             renderer.render(scene, camera);
         }
@@ -206,7 +212,7 @@
         });
 
         /* ==========================================
-           2. API 로직 (유지)
+           2. API 로직 (수정 없음)
         ========================================== */
         async function fetchGames() {
             const usernameInput = document.getElementById('username').value.trim();
