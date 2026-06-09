@@ -19,7 +19,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Pretendard', -apple-system, sans-serif; }
 
         body {
-            /* 3D 오브젝트가 빠진 대신 배경 그라데이션을 중앙 중심으로 배치하여 몰입감을 높였습니다 */
             background: radial-gradient(circle at 50% 50%, #08241d 0%, var(--bg-light) 60%, var(--bg-dark) 100%);
             color: var(--text-main);
             overflow: hidden; 
@@ -44,7 +43,13 @@
             z-index: 10; 
         }
 
-        .glass-panel.large { max-width: 800px; height: 80vh; display: flex; flex-direction: column; padding: 32px; }
+        .glass-panel.large { 
+            max-width: 800px; 
+            height: 80vh; 
+            display: flex; 
+            flex-direction: column; 
+            padding: 32px; 
+        }
 
         .page { display: none; }
         .page.active { display: block; animation: fadeIn 0.5s ease; }
@@ -79,14 +84,43 @@
         button:hover { transform: translateY(-2px); background: #1affb8; box-shadow: 0 8px 25px rgba(0, 255, 170, 0.4); }
         button:disabled { background: #333; color: #777; box-shadow: none; cursor: not-allowed; transform: none; }
 
-        #result-container {
-            flex: 1; overflow-y: auto; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 12px; padding: 20px; margin-bottom: 24px; margin-top: 20px;
+        .back-btn { 
+            background: transparent; 
+            border: 1px solid var(--point-mint); 
+            color: var(--point-mint); 
+            box-shadow: none; 
+            margin-top: 20px;
         }
-        pre { font-family: 'Courier New', Courier, monospace; font-size: 13px; color: #d1d5db; white-space: pre-wrap; word-wrap: break-word; line-height: 1.5; }
-
-        .back-btn { background: transparent; border: 1px solid var(--point-mint); color: var(--point-mint); box-shadow: none; }
         .back-btn:hover { background: rgba(0, 255, 170, 0.1); color: var(--point-mint); box-shadow: none; }
+
+        /* 결과 창 전용 디자인 */
+        #result-container {
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 16px; 
+            overflow-y: auto; 
+            background: rgba(0,0,0,0.4); 
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px; 
+            padding: 24px; 
+            margin-top: 20px;
+        }
+
+        .score-card {
+            background: rgba(255, 255, 255, 0.03); 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px; 
+            padding: 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+        }
+        
+        .score-title { font-size: 16px; font-weight: 600; color: #d1d5db; line-height: 1.4; }
+        .score-title span { font-size: 12px; font-weight: 400; color: #8b95a5; display: block; margin-top: 4px; }
+        .score-value { font-size: 28px; font-weight: 800; color: var(--point-mint); }
+        .loading-spinner { text-align: center; color: var(--point-mint); font-size: 16px; padding: 40px; line-height: 1.6; }
 
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -106,88 +140,118 @@
                 <input type="text" id="username" placeholder="e.g. hikaru" autocomplete="off">
             </div>
             
-            <button id="fetch-btn" onclick="fetchGames()">기보 가져오기</button>
+            <button id="fetch-btn" onclick="fetchGames()">기보 분석하기</button>
         </div>
 
         <div id="page2" class="page">
             <h1 class="main-title" style="font-size: 28px;" id="display-user"></h1>
-            <p class="sub-title" style="margin-bottom: 0;" id="result-status">데이터를 불러오는 중입니다...</p>
-            <div id="result-container"><pre id="pgn-output"></pre></div>
+            <p class="sub-title" style="margin-bottom: 0;" id="result-status">데이터를 분석하는 중입니다...</p>
+            
+            <div id="result-container">
+                </div>
+
             <button class="back-btn" onclick="goBack()">다시 검색하기</button>
         </div>
     </div>
 
     <script>
-        /* ==========================================
-           API 로직 (수집, 파싱, 에러 처리)
-        ========================================== */
         async function fetchGames() {
             const usernameInput = document.getElementById('username').value.trim();
             if (!usernameInput) return alert("Chess ID를 입력해주세요.");
 
             const btn = document.getElementById('fetch-btn');
             btn.disabled = true;
-            btn.innerText = "불러오는 중...";
+            btn.innerText = "분석 준비 중...";
 
+            // UI를 페이지 2로 전환 (넓은 창)
             document.getElementById('page1').classList.remove('active');
             const page2 = document.getElementById('page2');
             page2.classList.add('active-flex');
             document.getElementById('main-panel').classList.add('large');
-            
             document.getElementById('display-user').innerText = usernameInput.toUpperCase();
-            const output = document.getElementById('pgn-output');
-            const status = document.getElementById('result-status');
             
-            output.innerText = "";
-            status.innerText = "아카이브를 탐색하고 있습니다...";
-
-            const headers = { 'User-Agent': 'CBTI_Prototype/1.0' };
+            const status = document.getElementById('result-status');
+            const container = document.getElementById('result-container');
+            
+            // 1단계 로딩 UI
+            container.innerHTML = '<div class="loading-spinner">♟️ Chess.com에서 최신 기보를 수집하고 있습니다...</div>';
 
             try {
+                // 1. Chess.com 아카이브 조회
+                const headers = { 'User-Agent': 'CBTI_Prototype/1.0' };
                 const archiveRes = await fetch(`https://api.chess.com/pub/player/${usernameInput}/games/archives`, { headers });
-                if (!archiveRes.ok) throw new Error("ID를 찾을 수 없습니다.");
+                if (!archiveRes.ok) throw new Error("입력하신 ID를 찾을 수 없습니다.");
                 
                 const archiveData = await archiveRes.json();
                 const archives = archiveData.archives || [];
-                
-                if (archives.length === 0) {
-                    status.innerText = "최근 플레이한 게임 기록이 없습니다.";
-                    btn.disabled = false;
-                    btn.innerText = "기보 가져오기";
-                    return;
-                }
+                if (archives.length === 0) throw new Error("최근 플레이한 게임 기록이 없습니다.");
 
-                let allGames = [];
-                status.innerText = "기보를 추출하는 중입니다...";
-
+                // 2. 가장 최근 기보 3개 추출
+                let recentGames = [];
                 for (let i = archives.length - 1; i >= 0; i--) {
                     const monthRes = await fetch(archives[i], { headers });
                     if (monthRes.ok) {
                         const monthData = await monthRes.json();
                         let games = monthData.games || [];
-                        games.reverse(); 
-                        allGames = allGames.concat(games);
-                        if (allGames.length >= 100) break;
+                        games.reverse(); // 최신순 정렬
+                        recentGames = recentGames.concat(games);
+                        if (recentGames.length >= 3) break;
                     }
                 }
 
-                const recentGames = allGames.slice(0, 100);
-                status.innerText = `성공! 총 ${recentGames.length}개의 기보를 가져왔습니다.`;
+                recentGames = recentGames.slice(0, 3);
+                if (recentGames.length === 0) throw new Error("기보를 추출하지 못했습니다.");
+
+                let combinedPGN = recentGames.map(g => g.pgn).join('\n\n');
+
+                // 2단계 로딩 UI (엔진 분석 시작)
+                container.innerHTML = '<div class="loading-spinner">⚙️ 기보 수집 완료!<br>파이썬 백엔드(Stockfish)가 4개의 축을 연산 중입니다.<br><br><span style="font-size:13px; color:#8b95a5;">(TDA 및 위상 수학 연산으로 인해 약 10~20초 소요될 수 있습니다)</span></div>';
                 
-                let resultText = "";
-                recentGames.forEach((game, index) => {
-                    resultText += `[Game ${index + 1}] FIDE: ${game.rules} | TimeClass: ${game.time_class}\n`;
-                    resultText += `${game.pgn}\n\n`;
-                    resultText += `==================================================\n\n`;
+                // 3. Render.com 백엔드 서버로 데이터 전송 및 분석 요청
+                // ==============================================================================
+                // 🚨 [필수 수정] 아래의 URL을 Render.com에서 생성된 본인의 웹 서비스 주소로 바꾸세요!
+                // 예시: 'https://cbti-backend-xxxx.onrender.com/api/evaluate'
+                // ==============================================================================
+                const RENDER_API_URL = 'https://chessapi-tzn8.onrender.com/api/evaluate';
+                
+                const response = await fetch(RENDER_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pgn: combinedPGN, username: usernameInput })
                 });
 
-                output.innerText = resultText;
+                if (!response.ok) throw new Error("백엔드 서버 분석 중 오류가 발생했습니다. 서버 상태를 확인해주세요.");
+                
+                const scores = await response.json();
+                if (scores.error) throw new Error(scores.error);
+
+                // 4. 결과 스코어 카드 렌더링
+                status.innerText = "최근 3경기의 CBTI 분석이 완료되었습니다.";
+                container.innerHTML = `
+                    <div class="score-card">
+                        <div class="score-title">1. 기억형(M) vs 직관형(I) <span>오프닝 이론 숙지도 깊이 (ATD)</span></div>
+                        <div class="score-value">${scores.Axis1_Memory.toFixed(2)}</div>
+                    </div>
+                    <div class="score-card">
+                        <div class="score-title">2. 전술형(T) vs 전략형(P) <span>TDA 위상적 복잡도 (H1 Homology)</span></div>
+                        <div class="score-value">${scores.Axis2_Tactical.toFixed(4)}</div>
+                    </div>
+                    <div class="score-card">
+                        <div class="score-title">3. 미들(M) vs 엔드(E) 강자 <span>M-Score (CAPS 엔진 정확도 기반)</span></div>
+                        <div class="score-value">${scores.Axis3_Middlegame.toFixed(1)}%</div>
+                    </div>
+                    <div class="score-card">
+                        <div class="score-title">4. 공격형(A) vs 균형형(B) <span>희생 빈도 및 기물 불균형 점수 (TDA)</span></div>
+                        <div class="score-value">${scores.Axis4_Aggressive.toFixed(1)}</div>
+                    </div>
+                `;
 
             } catch (error) {
-                status.innerText = `오류: ${error.message}`;
+                status.innerText = "분석 실패";
+                container.innerHTML = `<div style="color: #ff4a4a; padding: 20px; text-align: center; line-height: 1.5;">${error.message}</div>`;
             } finally {
                 btn.disabled = false;
-                btn.innerText = "기보 가져오기";
+                btn.innerText = "기보 분석하기";
             }
         }
 
