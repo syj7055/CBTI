@@ -29,7 +29,7 @@
         }
 
         /* ---------------------------------------------------
-           [1] 패널 기본 및 초기 화면 (Page 1) - 크기 원상복구
+           [1] 패널 기본 및 초기 화면 (Page 1) 
            --------------------------------------------------- */
         .glass-panel {
             background: var(--glass-bg);
@@ -37,9 +37,9 @@
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--glass-border);
             border-radius: 18px;
-            padding: 48px 40px; /* 큼직한 패딩 복구 */
+            padding: 48px 40px; 
             width: 90%;
-            max-width: 440px;   /* 초기 화면 폭 복구 */
+            max-width: 440px;   
             box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(0, 255, 170, 0.05);
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             position: relative;
@@ -80,36 +80,63 @@
 
 
         /* ---------------------------------------------------
-           [2] 결과 화면 (Page 2) - 직전 대비 15% 더 축소
+           [2] 결과 화면 (Page 2) - 컴팩트 사이즈 유지 및 헤더 변경
            --------------------------------------------------- */
         .glass-panel.large { 
-            max-width: 720px;    /* 가로폭 더 축소 */
+            max-width: 720px; 
             height: auto;
             max-height: 80vh; 
-            padding: 24px 28px;  /* 패딩 축소 */
+            padding: 24px 28px;  
         }
 
-        #page2 .main-title { 
-            font-size: 18px; font-weight: 800; text-align: center; letter-spacing: 1.5px;
+        /* 로딩 중 제목(가운데 정렬) */
+        #loading-header { text-align: center; }
+        #loading-header .main-title { 
+            font-size: 18px; font-weight: 800; letter-spacing: 1.5px;
             background: linear-gradient(90deg, #ffffff, var(--point-mint));
             -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 2px; 
         }
-        #page2 .sub-title { font-size: 11px; font-weight: 500; text-align: center; color: var(--text-muted); margin-bottom: 0; }
+        #loading-header .sub-title { font-size: 11px; font-weight: 500; color: var(--text-muted); margin-bottom: 0; }
 
-        /* 결과 화면 좌우 분할 */
+        /* 결과 표시용 헤더 (좌우 분할) */
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 4px;
+            padding: 0 6px 12px 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .result-user {
+            font-size: 16px; 
+            font-weight: 600; 
+            color: #ffffff;
+            letter-spacing: 0.5px;
+        }
+        .result-type {
+            font-size: 22px; 
+            font-weight: 900; 
+            letter-spacing: 1.5px;
+            background: linear-gradient(90deg, #ffffff, var(--point-mint));
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+        }
+
+        /* 결과 화면 하단 레이아웃 */
         .content-body {
             display: flex;
-            gap: 16px; /* 좌우 간격 추가 축소 */
+            gap: 16px;
             flex: 1;
             overflow: hidden;
-            margin-top: 14px;
+            margin-top: 10px;
         }
 
         .left-col {
             flex: 1.1;
             display: flex;
             flex-direction: column;
-            gap: 8px; /* 위아래 간격 추가 축소 */
+            gap: 8px; 
             overflow-y: auto;
             padding-right: 4px;
         }
@@ -118,7 +145,7 @@
             flex: 0.9;
             display: flex;
             flex-direction: column;
-            gap: 8px; /* 위아래 간격 추가 축소 */
+            gap: 8px; 
         }
 
         /* MBTI 스타일 스코어 바 디자인 (초미니멀 사이즈) */
@@ -126,7 +153,7 @@
             background: rgba(255, 255, 255, 0.03); 
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 10px;
-            padding: 10px 14px; /* 패딩 축소 */
+            padding: 10px 14px; 
         }
         .trait-title { text-align: center; font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 2px; }
         .trait-title span.vs { color: #8b95a5; font-size: 10px; font-weight: 400; margin: 0 4px; }
@@ -138,16 +165,16 @@
 
         .bar-container {
             display: flex;
-            height: 5px; /* 바 두께 축소 */
+            height: 5px; 
             border-radius: 2.5px;
             overflow: hidden;
             background: rgba(255, 255, 255, 0.05);
         }
         .bar-segment { transition: width 1s cubic-bezier(0.25, 0.8, 0.25, 1); }
 
-        /* 우측 액션 버튼 (좌측 높이와 동기화) */
+        /* 우측 액션 버튼 */
         .action-card {
-            flex: 1; /* 세로 길이 꽉 채우기 */
+            flex: 1; 
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--glass-border);
             border-radius: 10px;
@@ -155,7 +182,7 @@
             flex-direction: row; 
             align-items: center;
             text-align: left;
-            padding: 12px 16px; /* 패딩 축소 */
+            padding: 12px 16px; 
             gap: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -184,7 +211,7 @@
             background: transparent; 
             border: 1px solid var(--text-muted); 
             color: var(--text-muted); 
-            padding: 10px 6px; /* 축소 */
+            padding: 10px 6px; 
             font-size: 11px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.3s ease;
         }
         .secondary-btn:hover { border-color: var(--text-main); color: var(--text-main); }
@@ -213,6 +240,7 @@
 <body>
 
     <div class="glass-panel" id="main-panel">
+        <!-- PAGE 1: 큼직한 초기 검색 화면 -->
         <div id="page1" class="page active">
             <h1 class="main-title">CBTI</h1>
             <h2 class="sub-title">Chess Behavioral Type Indicator</h2>
@@ -225,9 +253,20 @@
             <button class="primary-btn" id="fetch-btn" onclick="analyzeMockGames()">기보 분석하기</button>
         </div>
 
+        <!-- PAGE 2: 밀도 있게 축소된 결과 화면 -->
         <div id="page2" class="page">
-            <h1 class="main-title" id="display-user"></h1>
-            <p class="sub-title" id="result-status">데이터 수집 중...</p>
+            
+            <!-- 로딩 중일 때 보여지는 중앙 헤더 -->
+            <div id="loading-header">
+                <h1 class="main-title" id="loading-user"></h1>
+                <p class="sub-title" id="result-status">데이터 수집 중...</p>
+            </div>
+
+            <!-- 분석 완료 시 보여지는 좌우 분할 헤더 -->
+            <div class="result-header" id="result-header" style="display: none;">
+                <div class="result-user" id="display-user"></div>
+                <div class="result-type" id="display-type"></div>
+            </div>
             
             <div id="loading-view" class="loading-view">
                 <p>♟️ Chess.com 아카이브 탐색 중...</p>
@@ -235,8 +274,10 @@
             </div>
 
             <div id="result-content" class="content-body" style="display: none;">
+                <!-- 좌측: MBTI 그래프 영역 -->
                 <div class="left-col" id="result-container"></div>
 
+                <!-- 우측: 배너 및 버튼 영역 -->
                 <div class="right-col">
                     <div class="action-card" onclick="alert('오프닝 추천 페이지 준비중입니다!')">
                         <div class="action-icon">📖</div>
@@ -297,14 +338,21 @@
             const page2 = document.getElementById('page2');
             page2.classList.add('active-flex');
             document.getElementById('main-panel').classList.add('large');
-            document.getElementById('display-user').innerText = usernameInput.toUpperCase();
             
-            const status = document.getElementById('result-status');
+            // 로딩 상태에서 대소문자 원본 그대로 출력
+            document.getElementById('loading-user').innerText = usernameInput;
+            
+            const loadingHeader = document.getElementById('loading-header');
+            const resultHeader = document.getElementById('result-header');
             const loadingView = document.getElementById('loading-view');
             const resultContent = document.getElementById('result-content');
             const container = document.getElementById('result-container');
 
-            status.innerText = "최근 플레이 스타일을 분석하고 있습니다...";
+            document.getElementById('result-status').innerText = "최근 플레이 스타일을 분석하고 있습니다...";
+            
+            // UI 초기 세팅
+            loadingHeader.style.display = 'block';
+            resultHeader.style.display = 'none';
             loadingView.style.display = 'flex';
             resultContent.style.display = 'none';
             container.innerHTML = '';
@@ -322,19 +370,24 @@
                     return Math.floor(val * 101);
                 };
 
+                // 각 축별 데이터 및 성향 알파벳 설정
                 const axesData = [
-                    { leftTitle: "기억형(M)", rightTitle: "직관형(I)", desc: "오프닝 이론 숙지도 깊이", color: "#00FFAA" },
-                    { leftTitle: "전술형(T)", rightTitle: "전략형(P)", desc: "위상적 복잡도 선호도 (TDA)", color: "#F4A261" },
-                    { leftTitle: "미들(M)", rightTitle: "엔드(E)", desc: "페이즈별 강점 (M-Score)", color: "#2A9D8F" },
-                    { leftTitle: "공격형(A)", rightTitle: "균형형(B)", desc: "희생 빈도 및 불균형 비율", color: "#CDB4DB" }
+                    { leftTitle: "기억형(M)", rightTitle: "직관형(I)", desc: "오프닝 이론 숙지도 깊이", color: "#00FFAA", letters: ['M', 'I'] },
+                    { leftTitle: "전술형(T)", rightTitle: "전략형(P)", desc: "위상적 복잡도 선호도 (TDA)", color: "#F4A261", letters: ['T', 'P'] },
+                    { leftTitle: "미들(M)", rightTitle: "엔드(E)", desc: "페이즈별 강점 (M-Score)", color: "#2A9D8F", letters: ['M', 'E'] },
+                    { leftTitle: "공격형(A)", rightTitle: "균형형(B)", desc: "희생 빈도 및 불균형 비율", color: "#CDB4DB", letters: ['A', 'B'] }
                 ];
 
                 let html = '';
+                let cbtiTypeString = ''; // 결과 유형 문자열 (예: MTMA)
 
                 axesData.forEach(axis => {
                     const scoreLeft = getGaussianScore();
                     const scoreRight = 100 - scoreLeft;
                     const isLeftDominant = scoreLeft >= scoreRight;
+
+                    // 결과 유형 문자열 누적
+                    cbtiTypeString += isLeftDominant ? axis.letters[0] : axis.letters[1];
 
                     const leftBgColor = isLeftDominant ? axis.color : 'rgba(255,255,255,0.05)';
                     const rightBgColor = !isLeftDominant ? axis.color : 'rgba(255,255,255,0.05)';
@@ -364,12 +417,18 @@
                 });
 
                 container.innerHTML = html;
-                status.innerText = "분석이 성공적으로 완료되었습니다.";
+                
+                // 완료 후 헤더 및 뷰 전환
+                loadingHeader.style.display = 'none';
+                resultHeader.style.display = 'flex';
+                document.getElementById('display-user').innerText = usernameInput;
+                document.getElementById('display-type').innerText = cbtiTypeString;
+
                 loadingView.style.display = 'none';
                 resultContent.style.display = 'flex';
 
             } catch (error) {
-                status.innerText = "분석 중 오류가 발생했습니다.";
+                document.getElementById('result-status').innerText = "분석 중 오류가 발생했습니다.";
                 loadingView.innerHTML = `<div style="color: #ff4a4a; font-weight:600;">데이터를 불러오지 못했습니다.</div>`;
             } finally {
                 btn.disabled = false;
@@ -383,6 +442,9 @@
             document.getElementById('page1').classList.add('active');
             document.getElementById('username').value = '';
             
+            // 상태 초기화
+            document.getElementById('loading-header').style.display = 'block';
+            document.getElementById('result-header').style.display = 'none';
             document.getElementById('result-status').innerText = "데이터 수집 중...";
             document.getElementById('loading-view').style.display = 'flex';
             document.getElementById('result-content').style.display = 'none';
