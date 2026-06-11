@@ -186,7 +186,7 @@
                 const archives = archiveData.archives || [];
                 if (archives.length === 0) throw new Error("최근 플레이한 게임 기록이 없습니다.");
 
-                // 2. 가장 최근 기보 3개 추출
+                // 2. 가장 최근 기보 1개 추출
                 let recentGames = [];
                 for (let i = archives.length - 1; i >= 0; i--) {
                     const monthRes = await fetch(archives[i], { headers });
@@ -195,11 +195,11 @@
                         let games = monthData.games || [];
                         games.reverse(); // 최신순 정렬
                         recentGames = recentGames.concat(games);
-                        if (recentGames.length >= 3) break;
+                        if (recentGames.length >= 1) break;
                     }
                 }
 
-                recentGames = recentGames.slice(0, 3);
+                recentGames = recentGames.slice(0, 1); // 최신 1개 게임만 사용
                 if (recentGames.length === 0) throw new Error("기보를 추출하지 못했습니다.");
 
                 let combinedPGN = recentGames.map(g => g.pgn).join('\n\n');
@@ -226,7 +226,7 @@
                 if (scores.error) throw new Error(scores.error);
 
                 // 4. 결과 스코어 카드 렌더링
-                status.innerText = "최근 3경기의 CBTI 분석이 완료되었습니다.";
+                status.innerText = "최근 경기들의 CBTI 분석이 완료되었습니다.";
                 container.innerHTML = `
                     <div class="score-card">
                         <div class="score-title">1. 기억형(M) vs 직관형(I) <span>오프닝 이론 숙지도 깊이 (ATD)</span></div>
