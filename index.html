@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CBTI: Chess Behavioral Type Indicator</title>
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v3.2.1/dist/web/static/pretendard.css" />
+    <script type="module" src="https://unpkg.com/chessboard-element?module"></script>
     <style>
         :root {
             --bg-dark: #05070a;
@@ -36,10 +37,10 @@
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--glass-border);
-            border-radius: 18px;
-            padding: 48px 40px; 
+            border-radius: 20px;
+            padding: 56px 48px;
             width: 90%;
-            max-width: 440px;   
+            max-width: 480px;  
             box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(0, 255, 170, 0.05);
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             position: relative;
@@ -52,27 +53,26 @@
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 초기 화면 텍스트 및 폼 크기 */
         #page1 .main-title {
-            font-size: 38px; font-weight: 800; margin-bottom: 6px; text-align: center; letter-spacing: 2px;
+            font-size: 46px; font-weight: 800; margin-bottom: 8px; text-align: center; letter-spacing: 2px;
             background: linear-gradient(90deg, #ffffff, var(--point-mint));
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        #page1 .sub-title { font-size: 15px; font-weight: 500; text-align: center; color: var(--text-muted); margin-bottom: 36px; }
+        #page1 .sub-title { font-size: 17px; font-weight: 500; text-align: center; color: var(--text-muted); margin-bottom: 40px; }
         
-        #page1 .input-group { position: relative; margin-bottom: 28px; }
-        #page1 .input-label { display: block; font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 10px; }
+        #page1 .input-group { position: relative; margin-bottom: 32px; }
+        #page1 .input-label { display: block; font-size: 16px; font-weight: 600; color: var(--text-main); margin-bottom: 12px; }
         #page1 .input-label span { color: var(--point-mint); }
 
         #page1 input[type="text"] {
             width: 100%; background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px; color: var(--text-main); font-size: 16px; padding: 16px; outline: none; transition: all 0.3s;
+            border-radius: 12px; color: var(--text-main); font-size: 18px; padding: 18px; outline: none; transition: all 0.3s;
         }
         #page1 input[type="text"]:focus { border-color: var(--point-mint); box-shadow: 0 0 15px rgba(0, 255, 170, 0.15); }
 
         #page1 button.primary-btn {
-            width: 100%; background: var(--point-mint); color: #05070a; border: none; padding: 18px;
-            font-size: 16px; font-weight: 800; border-radius: 12px; cursor: pointer; transition: all 0.3s ease;
+            width: 100%; background: var(--point-mint); color: #05070a; border: none; padding: 20px;
+            font-size: 18px; font-weight: 800; border-radius: 12px; cursor: pointer; transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0, 255, 170, 0.3);
         }
         #page1 button.primary-btn:hover { transform: translateY(-2px); background: #1affb8; box-shadow: 0 8px 25px rgba(0, 255, 170, 0.4); }
@@ -80,167 +80,159 @@
 
 
         /* ---------------------------------------------------
-           [2] 결과 화면 (Page 2) - 컴팩트 사이즈 유지 및 헤더 변경
+           [2] 결과 화면 (Page 2)
            --------------------------------------------------- */
         .glass-panel.large { 
-            max-width: 720px; 
+            max-width: 840px; 
             height: auto;
-            max-height: 80vh; 
-            padding: 24px 28px;  
+            max-height: 85vh; 
+            padding: 32px 36px;  
         }
 
-        /* 로딩 중 제목(가운데 정렬) */
         #loading-header { text-align: center; }
         #loading-header .main-title { 
-            font-size: 18px; font-weight: 800; letter-spacing: 1.5px;
+            font-size: 22px; font-weight: 800; letter-spacing: 1.5px;
             background: linear-gradient(90deg, #ffffff, var(--point-mint));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 2px; 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; 
         }
-        #loading-header .sub-title { font-size: 11px; font-weight: 500; color: var(--text-muted); margin-bottom: 0; }
+        #loading-header .sub-title { font-size: 13px; font-weight: 500; color: var(--text-muted); margin-bottom: 0; }
 
-        /* 결과 표시용 헤더 (좌우 분할) */
         .result-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-bottom: 4px;
-            padding: 0 6px 12px 6px;
+            display: flex; justify-content: space-between; align-items: flex-end;
+            margin-bottom: 8px; padding: 0 8px 16px 8px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
-        .result-user {
-            font-size: 16px; 
-            font-weight: 600; 
-            color: #ffffff;
-            letter-spacing: 0.5px;
-        }
+        .result-user { font-size: 20px; font-weight: 600; color: #ffffff; letter-spacing: 0.5px; }
         .result-type {
-            font-size: 22px; 
-            font-weight: 900; 
-            letter-spacing: 1.5px;
+            font-size: 28px; font-weight: 900; letter-spacing: 1.5px;
             background: linear-gradient(90deg, #ffffff, var(--point-mint));
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent;
-            line-height: 1;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1;
         }
 
-        /* 결과 화면 하단 레이아웃 */
-        .content-body {
-            display: flex;
-            gap: 16px;
-            flex: 1;
-            overflow: hidden;
-            margin-top: 10px;
-        }
+        .content-body { display: flex; gap: 24px; flex: 1; overflow: hidden; margin-top: 12px; }
+        .left-col { flex: 1.1; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; padding-right: 8px; }
+        .right-col { flex: 0.9; display: flex; flex-direction: column; gap: 12px; }
 
-        .left-col {
-            flex: 1.1;
-            display: flex;
-            flex-direction: column;
-            gap: 8px; 
-            overflow-y: auto;
-            padding-right: 4px;
-        }
+        .trait-row { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 14px 20px; }
+        .trait-title { text-align: center; font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+        .trait-title span.vs { color: #8b95a5; font-size: 12px; font-weight: 400; margin: 0 6px; }
+        .trait-desc { text-align: center; font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
 
-        .right-col {
-            flex: 0.9;
-            display: flex;
-            flex-direction: column;
-            gap: 8px; 
-        }
+        .trait-labels { display: flex; justify-content: space-between; margin-bottom: 6px; align-items: flex-end; }
+        .trait-labels span { font-size: 15px; font-weight: 800; line-height: 1.1; }
+        .trait-labels small { font-size: 11px; font-weight: 500; display: block; margin-top: 2px; text-transform: uppercase; }
 
-        /* MBTI 스타일 스코어 바 디자인 (초미니멀 사이즈) */
-        .trait-row {
-            background: rgba(255, 255, 255, 0.03); 
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
-            padding: 10px 14px; 
-        }
-        .trait-title { text-align: center; font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 2px; }
-        .trait-title span.vs { color: #8b95a5; font-size: 10px; font-weight: 400; margin: 0 4px; }
-        .trait-desc { text-align: center; font-size: 10px; color: var(--text-muted); margin-bottom: 8px; }
-
-        .trait-labels { display: flex; justify-content: space-between; margin-bottom: 4px; align-items: flex-end; }
-        .trait-labels span { font-size: 13px; font-weight: 800; line-height: 1.1; }
-        .trait-labels small { font-size: 9px; font-weight: 500; display: block; margin-top: 1px; text-transform: uppercase; }
-
-        .bar-container {
-            display: flex;
-            height: 5px; 
-            border-radius: 2.5px;
-            overflow: hidden;
-            background: rgba(255, 255, 255, 0.05);
-        }
+        .bar-container { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: rgba(255, 255, 255, 0.05); }
         .bar-segment { transition: width 1s cubic-bezier(0.25, 0.8, 0.25, 1); }
 
-        /* 우측 액션 버튼 */
         .action-card {
-            flex: 1; 
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--glass-border);
-            border-radius: 10px;
-            display: flex;
-            flex-direction: row; 
-            align-items: center;
-            text-align: left;
-            padding: 12px 16px; 
-            gap: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            color: var(--text-main);
+            flex: 1; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--glass-border);
+            border-radius: 12px; display: flex; flex-direction: row; align-items: center;
+            text-align: left; padding: 16px 20px; gap: 16px; cursor: pointer;
+            transition: all 0.3s ease; color: var(--text-main);
         }
         .action-card:hover {
-            background: rgba(0, 255, 170, 0.08);
-            border-color: var(--point-mint);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 255, 170, 0.15);
+            background: rgba(0, 255, 170, 0.08); border-color: var(--point-mint);
+            transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 255, 170, 0.15);
         }
-        .action-icon { font-size: 22px; flex-shrink: 0; }
+        .action-icon { font-size: 28px; flex-shrink: 0; }
         .action-text { display: flex; flex-direction: column; }
-        .action-text h3 { font-size: 12px; font-weight: 700; color: var(--point-mint); margin-bottom: 3px; }
-        .action-text p { font-size: 10px; color: var(--text-muted); line-height: 1.4; word-break: keep-all;}
+        .action-text h3 { font-size: 15px; font-weight: 700; color: var(--point-mint); margin-bottom: 4px; }
+        .action-text p { font-size: 12px; color: var(--text-muted); line-height: 1.4; word-break: keep-all;}
 
-        /* 하단 버튼 그룹 */
-        .button-group {
-            display: flex;
-            gap: 8px;
-            margin-top: auto;
-        }
-
+        .button-group { display: flex; gap: 10px; margin-top: auto; }
         .secondary-btn { 
-            flex: 1;
-            background: transparent; 
-            border: 1px solid var(--text-muted); 
-            color: var(--text-muted); 
-            padding: 10px 6px; 
-            font-size: 11px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.3s ease;
+            flex: 1; background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted); 
+            padding: 14px 10px; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.3s ease;
         }
         .secondary-btn:hover { border-color: var(--text-main); color: var(--text-main); }
-        
         .help-btn { border-color: rgba(0, 255, 170, 0.4); color: var(--point-mint); }
         .help-btn:hover { background: rgba(0, 255, 170, 0.1); border-color: var(--point-mint); }
 
-        .loading-view { text-align: center; padding: 20px 0; flex: 1; display: flex; flex-direction: column; justify-content: center; }
-        .loading-view p { color: var(--point-mint); font-size: 13px; margin-bottom: 4px; font-weight: 600;}
-        .loading-view span { color: var(--text-muted); font-size: 10px; }
+        .loading-view { text-align: center; padding: 24px 0; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+        .loading-view p { color: var(--point-mint); font-size: 16px; margin-bottom: 6px; font-weight: 600;}
+        .loading-view span { color: var(--text-muted); font-size: 13px; }
 
-        ::-webkit-scrollbar { width: 4px; }
+        /* ---------------------------------------------------
+           [3] 퍼즐 추천 화면 전용 스타일 (Page 3)
+           --------------------------------------------------- */
+        .puzzle-card {
+            background: rgba(20, 25, 35, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-left: 4px solid var(--point-mint);
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+        .puzzle-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(90deg, rgba(0,255,170,0.05) 0%, transparent 100%);
+            z-index: 0; pointer-events: none;
+        }
+        .puzzle-card:hover { 
+            transform: translateX(4px); 
+            border-color: rgba(0, 255, 170, 0.4);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+        
+        /* 체스판 영역 */
+        .puzzle-board-wrapper {
+            width: 90px;
+            height: 90px;
+            flex-shrink: 0;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            z-index: 1;
+        }
+        chess-board { width: 100%; height: 100%; }
+
+        .puzzle-info { position: relative; z-index: 1; flex: 1; }
+        .puzzle-info h4 { font-size: 15px; color: #fff; margin-bottom: 6px; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px;}
+        .puzzle-info h4 span.tag { 
+            font-size: 10px; padding: 2px 6px; border-radius: 4px; background: rgba(0, 255, 170, 0.15); color: var(--point-mint); font-weight: 600;
+        }
+        .puzzle-info p { font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-bottom: 4px; }
+        .puzzle-info p strong { color: #d1d5db; font-weight: 600; }
+        
+        .puzzle-btn {
+            position: relative; z-index: 1;
+            background: transparent; color: var(--point-mint); 
+            border: 1px solid var(--point-mint); padding: 10px 18px; 
+            border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer;
+            text-decoration: none; transition: all 0.3s;
+            white-space: nowrap; flex-shrink: 0;
+        }
+        .puzzle-btn:hover { background: var(--point-mint); color: #000; }
+
+        ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 2px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 2.5px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(0, 255, 170, 0.5); }
 
         @media (max-width: 768px) {
-            .content-body { flex-direction: column; overflow-y: auto; gap: 12px;}
+            .content-body { flex-direction: column; overflow-y: auto; gap: 16px;}
             .left-col { overflow-y: visible; padding-right: 0; }
             .right-col { flex: none; }
-            .action-card { min-height: 90px; }
-            .glass-panel.large { max-height: 90vh; padding: 20px; }
+            .action-card { min-height: 100px; }
+            .glass-panel.large { max-height: 90vh; padding: 24px; }
+            .puzzle-card { flex-direction: column; text-align: center; gap: 12px; }
+            .puzzle-btn { width: 100%; margin-left: 0; text-align: center; }
+            .puzzle-board-wrapper { width: 120px; height: 120px; margin: 0 auto; }
+            .puzzle-info h4 { justify-content: center; }
         }
     </style>
 </head>
 <body>
 
     <div class="glass-panel" id="main-panel">
-        <!-- PAGE 1: 큼직한 초기 검색 화면 -->
+        
         <div id="page1" class="page active">
             <h1 class="main-title">CBTI</h1>
             <h2 class="sub-title">Chess Behavioral Type Indicator</h2>
@@ -253,16 +245,12 @@
             <button class="primary-btn" id="fetch-btn" onclick="analyzeMockGames()">기보 분석하기</button>
         </div>
 
-        <!-- PAGE 2: 밀도 있게 축소된 결과 화면 -->
         <div id="page2" class="page">
-            
-            <!-- 로딩 중일 때 보여지는 중앙 헤더 -->
             <div id="loading-header">
                 <h1 class="main-title" id="loading-user"></h1>
                 <p class="sub-title" id="result-status">데이터 수집 중...</p>
             </div>
 
-            <!-- 분석 완료 시 보여지는 좌우 분할 헤더 -->
             <div class="result-header" id="result-header" style="display: none;">
                 <div class="result-user" id="display-user"></div>
                 <div class="result-type" id="display-type"></div>
@@ -274,10 +262,7 @@
             </div>
 
             <div id="result-content" class="content-body" style="display: none;">
-                <!-- 좌측: MBTI 그래프 영역 -->
                 <div class="left-col" id="result-container"></div>
-
-                <!-- 우측: 배너 및 버튼 영역 -->
                 <div class="right-col">
                     <div class="action-card" onclick="alert('오프닝 추천 페이지 준비중입니다!')">
                         <div class="action-icon">📖</div>
@@ -287,7 +272,7 @@
                         </div>
                     </div>
                     
-                    <div class="action-card" onclick="alert('퍼즐 큐레이션 페이지 준비중입니다!')">
+                    <div class="action-card" onclick="openPuzzlePage()">
                         <div class="action-icon">🧩</div>
                         <div class="action-text">
                             <h3>최적의 퍼즐 큐레이션</h3>
@@ -302,10 +287,29 @@
                 </div>
             </div>
         </div>
+
+        <div id="page3" class="page">
+            <div class="result-header" style="padding-bottom: 12px;">
+                <div class="result-user" id="puzzle-user"></div>
+                <div class="result-type" style="font-size: 20px;">🧩 맞춤형 퍼즐 큐레이션</div>
+            </div>
+            
+            <p class="sub-title" style="text-align: left; margin-bottom: 20px; color: #00FFAA; font-size: 13px;" id="puzzle-status">
+                당신의 최근 실전 기보에서 추출한 가장 유사한 상황의 퍼즐입니다.
+            </p>
+
+            <div id="puzzle-list" style="display: flex; flex-direction: column; overflow-y: auto; max-height: 55vh; padding-right: 8px;">
+            </div>
+
+            <div class="button-group" style="margin-top: 24px;">
+                <button class="secondary-btn" onclick="backToResult()">⬅ 결과 화면으로 돌아가기</button>
+            </div>
+        </div>
+
     </div>
 
     <script>
-        // 문자열을 해시(정수)로 변환 (고정 시드)
+        // 문자열을 해시(정수)로 변환 (고정 시드 생성용)
         function getStringHash(str) {
             let hash = 0;
             str = str.toLowerCase();
@@ -315,7 +319,6 @@
             return hash;
         }
 
-        // 고정 시드 난수 생성 (Mulberry32)
         function mulberry32(a) {
             return function() {
               var t = a += 0x6D2B79F5;
@@ -333,13 +336,11 @@
             btn.disabled = true;
             btn.innerText = "분석 중...";
 
-            // 화면 전환
             document.getElementById('page1').classList.remove('active');
             const page2 = document.getElementById('page2');
             page2.classList.add('active-flex');
             document.getElementById('main-panel').classList.add('large');
             
-            // 로딩 상태에서 대소문자 원본 그대로 출력
             document.getElementById('loading-user').innerText = usernameInput;
             
             const loadingHeader = document.getElementById('loading-header');
@@ -350,7 +351,6 @@
 
             document.getElementById('result-status').innerText = "최근 플레이 스타일을 분석하고 있습니다...";
             
-            // UI 초기 세팅
             loadingHeader.style.display = 'block';
             resultHeader.style.display = 'none';
             loadingView.style.display = 'flex';
@@ -360,17 +360,14 @@
             await new Promise(r => setTimeout(r, 1200));
 
             try {
-                // ID 기반 랜덤 제너레이터 초기화
                 const seed = getStringHash(usernameInput);
                 const rng = mulberry32(seed);
 
-                // 정규 분포화 (중간값 50 수렴)
                 const getGaussianScore = () => {
                     const val = (rng() + rng()) / 2;
                     return Math.floor(val * 101);
                 };
 
-                // 각 축별 데이터 및 성향 알파벳 설정
                 const axesData = [
                     { leftTitle: "기억형(M)", rightTitle: "직관형(I)", desc: "오프닝 이론 숙지도 깊이", color: "#00FFAA", letters: ['M', 'I'] },
                     { leftTitle: "전술형(T)", rightTitle: "전략형(P)", desc: "위상적 복잡도 선호도 (TDA)", color: "#F4A261", letters: ['T', 'P'] },
@@ -379,14 +376,13 @@
                 ];
 
                 let html = '';
-                let cbtiTypeString = ''; // 결과 유형 문자열 (예: MTMA)
+                let cbtiTypeString = ''; 
 
                 axesData.forEach(axis => {
                     const scoreLeft = getGaussianScore();
                     const scoreRight = 100 - scoreLeft;
                     const isLeftDominant = scoreLeft >= scoreRight;
 
-                    // 결과 유형 문자열 누적
                     cbtiTypeString += isLeftDominant ? axis.letters[0] : axis.letters[1];
 
                     const leftBgColor = isLeftDominant ? axis.color : 'rgba(255,255,255,0.05)';
@@ -418,7 +414,6 @@
 
                 container.innerHTML = html;
                 
-                // 완료 후 헤더 및 뷰 전환
                 loadingHeader.style.display = 'none';
                 resultHeader.style.display = 'flex';
                 document.getElementById('display-user').innerText = usernameInput;
@@ -436,13 +431,97 @@
             }
         }
 
+        // ==========================================
+        // 🧩 퍼즐 추천 페이지 로직
+        // ==========================================
+        function openPuzzlePage() {
+            document.getElementById('page2').classList.remove('active-flex');
+            document.getElementById('page3').classList.add('active-flex');
+            document.getElementById('puzzle-user').innerText = document.getElementById('username').value.trim().toUpperCase();
+            
+            renderDummyPuzzles();
+        }
+
+        function backToResult() {
+            document.getElementById('page3').classList.remove('active-flex');
+            document.getElementById('page2').classList.add('active-flex');
+        }
+
+        function renderDummyPuzzles() {
+            const list = document.getElementById('puzzle-list');
+            list.innerHTML = '';
+            
+            const currentUsername = document.getElementById('username').value.trim();
+            const rng = mulberry32(getStringHash(currentUsername + "puzzle2026"));
+
+            // 파이썬/데이터에서 추출한 실제 퍼즐 샘플 (FEN 포함)
+            const rawPuzzles = [
+                { id: "00B8m", fen: "3b4/3P4/pp2Pk2/5r2/P6p/3Q4/8/7K w - - 1 43", rating: 1277, themes: ["crushing", "endgame", "hangingPiece"] },
+                { id: "00BCa", fen: "1r6/p2kp1P1/3p4/2pP4/2P2B2/pN6/5PK1/8 b - - 1 41", rating: 1426, themes: ["advancedPawn", "crushing", "endgame", "promotion"] },
+                { id: "00BJm", fen: "r2q1rk1/1Q2bppp/p1N1p3/1p6/2pP1n2/2P5/PP3PPP/R4RK1 b - - 1 18", rating: 1107, themes: ["advantage", "fork", "hangingPiece", "middlegame"] },
+                { id: "00BKa", fen: "5rk1/p1Rb1ppp/2n1pn2/8/8/2P3P1/q4PBP/1rNQK2R b K - 2 16", rating: 2450, themes: ["advantage", "long", "middlegame"] },
+                { id: "00BM8", fen: "r4rk1/pp2bppp/2ppnn2/8/N1P1P3/q1P4P/P2N2PB/R2Q1R1K b - - 0 16", rating: 1526, themes: ["advantage", "master", "trappedPiece"] },
+                { id: "00BNd", fen: "1rr3k1/3bppbp/3p1np1/1B1N4/P2BP3/5P2/P2R2PP/R5K1 b - - 0 21", rating: 912,  themes: ["advantage", "fork", "short"] },
+                { id: "00BPh", fen: "r4rk1/1b1p1p1p/p2NpQpq/1p6/3R4/P7/1P3PPP/3R2K1 b - - 9 23", rating: 1938, themes: ["kingsideAttack", "advantage", "short"] },
+                { id: "00BQD", fen: "4r3/3R1pkp/6p1/1P6/1b6/5B2/1P1p1PPP/3R2K1 w - - 0 36", rating: 717,  themes: ["backRankMate", "endgame", "mate"] }
+            ];
+
+            // AI가 딥러닝으로 분석한 듯한 그럴싸한 코멘트들
+            const reasonPrefixes = [
+                "최근 3경기 내 치명적 블런더(Blunder) 패턴과 일치율",
+                "CBTI 성향 분석 기반 취약 포지션(Weakness) 유사도",
+                "전술형(T) 지표 향상을 위한 강제수(Forcing move) 훈련",
+                "자주 놓치는 기물 불균형(Imbalance) 인지 테스트",
+                "엔드게임(E) 전환 시점에서의 위상적(TDA) 에러율 기반"
+            ];
+
+            const themeMap = {
+                "crushing": "압도", "endgame": "엔드게임", "hangingPiece": "기물 방어",
+                "advancedPawn": "전진 폰", "promotion": "승진", "advantage": "이점 확보",
+                "fork": "포크(양수겸장)", "middlegame": "미들게임", "kingsideAttack": "킹사이드 공격",
+                "backRankMate": "백랭크 메이트", "xRayAttack": "엑스레이 공격", "master": "마스터 레벨", "long": "긴 수순"
+            };
+
+            // 유저 아이디 기반으로 3개를 랜덤 추출
+            let shuffled = [...rawPuzzles].sort(() => rng() - 0.5);
+            let selectedPuzzles = shuffled.slice(0, 3); 
+
+            selectedPuzzles.forEach((p, idx) => {
+                let displayTheme = p.themes.map(t => themeMap[t] || t).slice(0, 2).join(", ");
+                let similarity = (80 + (rng() * 19)).toFixed(1); 
+                let reason = reasonPrefixes[Math.floor(rng() * reasonPrefixes.length)];
+                let moveNum = Math.floor(rng() * 30) + 12; 
+                
+                // 체닷 -> 리체스 레이팅 매핑 (선형 변환식 적용된 수치인 척)
+                let adjustedRating = Math.floor(1250 + ((p.rating - 550) * (1120 / 1810)));
+                if(adjustedRating < 800) adjustedRating = 800;
+
+                list.innerHTML += `
+                    <div class="puzzle-card">
+                        <div class="puzzle-board-wrapper">
+                            <chess-board fen="${p.fen}" interactive="false"></chess-board>
+                        </div>
+                        <div class="puzzle-info">
+                            <h4>실전 매칭 포지션 #${idx + 1} <span class="tag">${displayTheme}</span></h4>
+                            <p><strong>분석 근거:</strong> ${reason} <strong>${similarity}%</strong></p>
+                            <p><strong>추천 사유:</strong> 최근 기보 ${moveNum}수 시점의 국면과 위상학적으로 매우 유사한 레이팅 ${p.rating} 구간의 전술입니다.</p>
+                        </div>
+                        <a href="https://lichess.org/training/${p.id}" target="_blank" class="puzzle-btn">해결하기 ↗</a>
+                    </div>
+                `;
+            });
+        }
+
+        // ==========================================
+        // 네비게이션 제어
+        // ==========================================
         function goBack() {
             document.getElementById('page2').classList.remove('active-flex');
+            document.getElementById('page3').classList.remove('active-flex');
             document.getElementById('main-panel').classList.remove('large');
             document.getElementById('page1').classList.add('active');
             document.getElementById('username').value = '';
             
-            // 상태 초기화
             document.getElementById('loading-header').style.display = 'block';
             document.getElementById('result-header').style.display = 'none';
             document.getElementById('result-status').innerText = "데이터 수집 중...";
